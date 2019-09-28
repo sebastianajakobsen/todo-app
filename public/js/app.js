@@ -1931,11 +1931,38 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'todo',
+  data: function data() {
+    return {
+      newTodo: ''
+    };
+  },
   computed: {
     allTodos: function allTodos() {
       return this.$store.getters.allTodos;
+    }
+  },
+  methods: {
+    addTodo: function addTodo() {
+      if (this.newTodo.trim().length == 0) {
+        return;
+      }
+
+      this.$store.dispatch('addTodo', {
+        id: this.$store.getters.todosCount + 1,
+        title: this.newTodo
+      });
+      this.newTodo = '';
     }
   },
   mounted: function mounted() {
@@ -2553,11 +2580,45 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
+    { staticClass: "w-1/3 mx-auto" },
     [
-      _c("h1", [_vm._v("Todo")]),
+      _vm._m(0),
+      _vm._v(" "),
+      _c("div", { staticClass: "my-2" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.newTodo,
+              expression: "newTodo"
+            }
+          ],
+          staticClass: "border border-blue-400 p-2 w-full",
+          attrs: { type: "text" },
+          domProps: { value: _vm.newTodo },
+          on: {
+            keyup: function($event) {
+              if (
+                !$event.type.indexOf("key") &&
+                _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+              ) {
+                return null
+              }
+              return _vm.addTodo($event)
+            },
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.newTodo = $event.target.value
+            }
+          }
+        })
+      ]),
       _vm._v(" "),
       _vm._l(_vm.allTodos, function(todo) {
-        return _c("div", { key: todo.id }, [
+        return _c("div", { key: todo.id, staticClass: "p-2" }, [
           _vm._v("\n        " + _vm._s(todo.title) + "\n    ")
         ])
       })
@@ -2565,7 +2626,16 @@ var render = function() {
     2
   )
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "bg-green-400 p-2 " }, [
+      _c("h1", [_vm._v("Todo")])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -19038,6 +19108,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   // A single state tree makes it straightforward to locate a specific piece of state, and allows us to easily
   // take snapshots of the current app state for debugging purposes.
   state: {
+    filter: 'All',
     todos: [{
       'id': 1,
       'title': 'First todo',
@@ -19061,6 +19132,9 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   getters: {
     allTodos: function allTodos(state) {
       return state.todos;
+    },
+    todosCount: function todosCount(state) {
+      return state.todos.length;
     }
   },
   // Mutations
@@ -19068,12 +19142,25 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   // Vuex mutations are very similar to events: each mutation has a string type and a handler.
   // The handler function is where we perform actual state modifications,
   // and it will receive the state as the first argument:
-  mutations: {},
+  mutations: {
+    addTodo: function addTodo(state, todo) {
+      state.todos.push({
+        id: todo.id,
+        title: todo.title,
+        completed: false,
+        editing: false
+      });
+    }
+  },
   // Actions
   // Actions are similar to mutations, the differences being that:
   //  * Instead of mutating the state, actions commit mutations.
   //  * Actions can contain arbitrary asynchronous operations.
-  actions: {}
+  actions: {
+    addTodo: function addTodo(context, todo) {
+      context.commit('addTodo', todo);
+    }
+  }
 }));
 
 /***/ }),
