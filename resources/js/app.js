@@ -25,7 +25,7 @@ const router = new VueRouter({
  * Vue components. It will recursively scan this directory for the Vue
  * components and automatically register them with their "basename".
  *
- * Eg. ./components/Master.vue -> <example-component></example-component>
+ * Eg. ./components/Master.vue -> <master></master>
  */
 
 // const files = require.context('./', true, /\.vue$/i)

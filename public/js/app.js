@@ -1928,8 +1928,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'todo',
+  computed: {
+    allTodos: function allTodos() {
+      return this.$store.getters.allTodos;
+    }
+  },
   mounted: function mounted() {
     console.log('Component mounted.');
   }
@@ -2543,16 +2551,21 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c(
+    "div",
+    [
+      _c("h1", [_vm._v("Todo")]),
+      _vm._v(" "),
+      _vm._l(_vm.allTodos, function(todo) {
+        return _c("div", { key: todo.id }, [
+          _vm._v("\n        " + _vm._s(todo.title) + "\n    ")
+        ])
+      })
+    ],
+    2
+  )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [_c("h1", [_vm._v("Todo")])])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -18692,7 +18705,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
  * Vue components. It will recursively scan this directory for the Vue
  * components and automatically register them with their "basename".
  *
- * Eg. ./components/Master.vue -> <example-component></example-component>
+ * Eg. ./components/Master.vue -> <master></master>
  */
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
@@ -19019,9 +19032,47 @@ __webpack_require__.r(__webpack_exports__);
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 /* harmony default export */ __webpack_exports__["default"] = (new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
-  state: {},
-  getters: {},
+  // State
+  // Vuex uses a single state tree - that is, this single object contains all your application level state and serves as the "single source of truth".
+  // This also means usually you will have only one store for each application.
+  // A single state tree makes it straightforward to locate a specific piece of state, and allows us to easily
+  // take snapshots of the current app state for debugging purposes.
+  state: {
+    todos: [{
+      'id': 1,
+      'title': 'First todo',
+      'completed': false,
+      'editing': false
+    }, {
+      'id': 2,
+      'title': 'Take over the world',
+      'completed': false,
+      'editing': false
+    }, {
+      'id': 3,
+      'title': 'Code every day',
+      'completed': true,
+      'editing': false
+    }]
+  },
+  // Getters
+  // Sometimes we may need to compute derived state based on store state,
+  // for example filtering through a list of items and counting them:
+  getters: {
+    allTodos: function allTodos(state) {
+      return state.todos;
+    }
+  },
+  // Mutations
+  // The only way to actually change state in a Vuex store is by committing a mutation.
+  // Vuex mutations are very similar to events: each mutation has a string type and a handler.
+  // The handler function is where we perform actual state modifications,
+  // and it will receive the state as the first argument:
   mutations: {},
+  // Actions
+  // Actions are similar to mutations, the differences being that:
+  //  * Instead of mutating the state, actions commit mutations.
+  //  * Actions can contain arbitrary asynchronous operations.
   actions: {}
 }));
 
