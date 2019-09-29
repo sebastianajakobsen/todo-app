@@ -1940,29 +1940,147 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'todo',
   data: function data() {
     return {
-      newTodo: ''
+      editedTodo: null,
+      newTodo: '',
+      todoId: 4
     };
   },
   computed: {
-    allTodos: function allTodos() {
-      return this.$store.getters.allTodos;
+    showClearCompletedButton: function showClearCompletedButton() {
+      return this.$store.getters.showClearCompletedButton;
+    },
+    filter: function filter() {
+      return this.$store.getters.filter;
+    },
+    todosFiltered: function todosFiltered() {
+      return this.$store.getters.todosFiltered;
+    },
+    remaining: function remaining() {
+      return this.$store.getters.remaining;
+    },
+    anyRemaining: function anyRemaining() {
+      return this.$store.getters.anyRemaining;
     }
   },
   methods: {
+    removeCompleted: function removeCompleted() {
+      this.$store.dispatch('removeCompleted');
+    },
+    allChecked: function allChecked() {
+      this.$store.dispatch('checkAll', event.target.checked);
+    },
     addTodo: function addTodo() {
       if (this.newTodo.trim().length == 0) {
         return;
       }
 
       this.$store.dispatch('addTodo', {
-        id: this.$store.getters.todosCount + 1,
+        id: this.todoId,
         title: this.newTodo
       });
+      this.todoId++;
       this.newTodo = '';
+    },
+    updateFilter: function updateFilter(filter) {
+      this.$store.dispatch('updateFilter', filter);
+    },
+    updateTodo: function updateTodo(todo) {
+      this.editedTodo = null;
+
+      if (todo.title.trim() == '') {
+        todo.title = todo.beforeEditCache;
+      }
+
+      this.$store.dispatch('updateTodo', {
+        'id': todo.id,
+        'title': todo.title,
+        'completed': todo.completed
+      });
+    },
+    deleteTodo: function deleteTodo(todo) {
+      this.$store.dispatch('deleteTodo', todo);
+    },
+    editTodo: function editTodo(todo) {
+      this.editedTodo = todo;
+      todo.beforeEditCache = todo.title;
+    },
+    cancelEdit: function cancelEdit(todo) {
+      this.editedTodo = null;
+      todo.title = todo.beforeEditCache;
     }
   },
   mounted: function mounted() {
@@ -2595,7 +2713,7 @@ var render = function() {
             }
           ],
           staticClass: "border border-blue-400 p-2 w-full",
-          attrs: { type: "text" },
+          attrs: { type: "text", placeholder: "Write todo" },
           domProps: { value: _vm.newTodo },
           on: {
             keyup: function($event) {
@@ -2617,11 +2735,236 @@ var render = function() {
         })
       ]),
       _vm._v(" "),
-      _vm._l(_vm.allTodos, function(todo) {
-        return _c("div", { key: todo.id, staticClass: "p-2" }, [
-          _vm._v("\n        " + _vm._s(todo.title) + "\n    ")
+      _vm._l(_vm.todosFiltered, function(todo) {
+        return _c("div", { key: todo.id, staticClass: "p-2 flex" }, [
+          _c("div", { staticClass: "m-2" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: todo.completed,
+                  expression: "todo.completed"
+                }
+              ],
+              staticClass: "p-2",
+              attrs: { type: "checkbox" },
+              domProps: {
+                checked: Array.isArray(todo.completed)
+                  ? _vm._i(todo.completed, null) > -1
+                  : todo.completed
+              },
+              on: {
+                change: [
+                  function($event) {
+                    var $$a = todo.completed,
+                      $$el = $event.target,
+                      $$c = $$el.checked ? true : false
+                    if (Array.isArray($$a)) {
+                      var $$v = null,
+                        $$i = _vm._i($$a, $$v)
+                      if ($$el.checked) {
+                        $$i < 0 &&
+                          _vm.$set(todo, "completed", $$a.concat([$$v]))
+                      } else {
+                        $$i > -1 &&
+                          _vm.$set(
+                            todo,
+                            "completed",
+                            $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                          )
+                      }
+                    } else {
+                      _vm.$set(todo, "completed", $$c)
+                    }
+                  },
+                  function($event) {
+                    return _vm.updateTodo(todo)
+                  }
+                ]
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _vm.editedTodo !== todo
+            ? _c(
+                "div",
+                {
+                  staticClass: "flex-grow mx-2 p-2",
+                  class: { "line-through": todo.completed },
+                  on: {
+                    dblclick: function($event) {
+                      return _vm.editTodo(todo)
+                    }
+                  }
+                },
+                [_vm._v("\n            " + _vm._s(todo.title) + "\n        ")]
+              )
+            : _c("div", { staticClass: "flex-grow mx-2" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: todo.title,
+                      expression: "todo.title"
+                    },
+                    { name: "focus", rawName: "v-focus" }
+                  ],
+                  staticClass: "w-full border border-blue-400 p-2",
+                  attrs: { type: "text" },
+                  domProps: { value: todo.title },
+                  on: {
+                    blur: function($event) {
+                      return _vm.updateTodo(todo)
+                    },
+                    keyup: [
+                      function($event) {
+                        if (
+                          !$event.type.indexOf("key") &&
+                          _vm._k(
+                            $event.keyCode,
+                            "enter",
+                            13,
+                            $event.key,
+                            "Enter"
+                          )
+                        ) {
+                          return null
+                        }
+                        return _vm.updateTodo(todo)
+                      },
+                      function($event) {
+                        if (
+                          !$event.type.indexOf("key") &&
+                          _vm._k($event.keyCode, "esc", 27, $event.key, [
+                            "Esc",
+                            "Escape"
+                          ])
+                        ) {
+                          return null
+                        }
+                        return _vm.cancelEdit(todo)
+                      }
+                    ],
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(todo, "title", $event.target.value)
+                    }
+                  }
+                })
+              ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "m-2" }, [
+            _c(
+              "span",
+              {
+                staticClass: "cursor-pointer p-2",
+                on: {
+                  click: function($event) {
+                    return _vm.deleteTodo(todo)
+                  }
+                }
+              },
+              [_vm._v("×")]
+            )
+          ])
         ])
-      })
+      }),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "flex justify-between my-2  border-b-2 border-t-2 p-2" },
+        [
+          _c("div", [
+            _c("input", {
+              attrs: { type: "checkbox" },
+              domProps: { checked: !_vm.anyRemaining },
+              on: { change: _vm.allChecked }
+            }),
+            _vm._v(" Check all\n        ")
+          ]),
+          _vm._v(" "),
+          _c("div", [
+            _vm._v(
+              "\n            " + _vm._s(_vm.remaining) + " items left\n        "
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "flex justify-between" }, [
+        _c("div", { staticClass: "flex" }, [
+          _c("div", { staticClass: "m-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "p-2 bg-gray-400 hover:bg-green-400",
+                class: { "bg-green-400": _vm.filter == "all" },
+                on: {
+                  click: function($event) {
+                    return _vm.updateFilter("all")
+                  }
+                }
+              },
+              [_vm._v("All\n                ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "m-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "p-2 bg-gray-400 hover:bg-green-400",
+                class: { "bg-green-400": _vm.filter == "active" },
+                on: {
+                  click: function($event) {
+                    return _vm.updateFilter("active")
+                  }
+                }
+              },
+              [_vm._v("Active\n                ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "m-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "p-2 bg-gray-400 hover:bg-green-400",
+                class: { "bg-green-400": _vm.filter == "completed" },
+                on: {
+                  click: function($event) {
+                    return _vm.updateFilter("completed")
+                  }
+                }
+              },
+              [_vm._v("Completed\n                ")]
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        _vm.showClearCompletedButton
+          ? _c("div", [
+              _c("div", { staticClass: "m-2" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "p-2 bg-gray-400 hover:bg-green-400",
+                    on: {
+                      click: function($event) {
+                        return _vm.removeCompleted("completed")
+                      }
+                    }
+                  },
+                  [_vm._v("Clear Completed\n                ")]
+                )
+              ])
+            ])
+          : _vm._e()
+      ])
     ],
     2
   )
@@ -2632,7 +2975,9 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "bg-green-400 p-2 " }, [
-      _c("h1", [_vm._v("Todo")])
+      _c("h1", { staticClass: "text-3xl text-center text-white" }, [
+        _vm._v("Todo")
+      ])
     ])
   }
 ]
@@ -18769,6 +19114,18 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   mode: 'history',
   routes: _routes__WEBPACK_IMPORTED_MODULE_2__["default"]
+}); // When the page loads, that element gains focus
+// (note: autofocus doesn’t work on mobile Safari).
+// In fact, if you haven’t clicked on anything else since visiting this page,
+// the input above should be focused now. Now let’s build the directive that accomplishes this:
+// Register a global custom directive called `v-focus`
+
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.directive('focus', {
+  // When the bound element is inserted into the DOM...
+  inserted: function inserted(el) {
+    // Focus the element
+    el.focus();
+  }
 });
 /**
  * The following block of code may be used to automatically register your
@@ -19098,6 +19455,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+
 
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
@@ -19108,33 +19468,55 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   // A single state tree makes it straightforward to locate a specific piece of state, and allows us to easily
   // take snapshots of the current app state for debugging purposes.
   state: {
-    filter: 'All',
+    filter: 'all',
     todos: [{
       'id': 1,
       'title': 'First todo',
-      'completed': false,
-      'editing': false
+      'completed': false
     }, {
       'id': 2,
       'title': 'Take over the world',
-      'completed': false,
-      'editing': false
+      'completed': false
     }, {
       'id': 3,
       'title': 'Code every day',
-      'completed': true,
-      'editing': false
+      'completed': true
     }]
   },
   // Getters
   // Sometimes we may need to compute derived state based on store state,
   // for example filtering through a list of items and counting them:
   getters: {
-    allTodos: function allTodos(state) {
+    todosFiltered: function todosFiltered(state) {
+      if (state.filter == 'all') {
+        return state.todos;
+      } else if (state.filter == 'active') {
+        return state.todos.filter(function (todo) {
+          return !todo.completed;
+        });
+      } else if (state.filter == 'completed') {
+        return state.todos.filter(function (todo) {
+          return todo.completed;
+        });
+      }
+
       return state.todos;
     },
-    todosCount: function todosCount(state) {
-      return state.todos.length;
+    filter: function filter(state) {
+      return state.filter;
+    },
+    showClearCompletedButton: function showClearCompletedButton(state) {
+      return state.todos.filter(function (todo) {
+        return todo.completed;
+      }).length > 0;
+    },
+    remaining: function remaining(state) {
+      return state.todos.filter(function (todo) {
+        return !todo.completed;
+      }).length;
+    },
+    anyRemaining: function anyRemaining(state, getters) {
+      return getters.remaining != 0;
     }
   },
   // Mutations
@@ -19150,6 +19532,36 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
         completed: false,
         editing: false
       });
+    },
+    updateFilter: function updateFilter(state, filter) {
+      state.filter = filter;
+    },
+    updateTodo: function updateTodo(state, todo) {
+      var index = state.todos.findIndex(function (item) {
+        return item.id == todo.id;
+      });
+      state.todos.splice(index, 1, {
+        'id': todo.id,
+        'title': todo.title,
+        'completed': todo.completed,
+        'editing': todo.editing
+      });
+    },
+    deleteTodo: function deleteTodo(state, todo) {
+      var index = state.todos.findIndex(function (item) {
+        return item.id == todo.id;
+      });
+      state.todos.splice(index, 1);
+    },
+    checkAll: function checkAll(state, checked) {
+      state.todos.forEach(function (todo) {
+        return todo.completed = checked;
+      });
+    },
+    removeCompleted: function removeCompleted(state) {
+      state.todos = state.todos.filter(function (todo) {
+        return !todo.completed;
+      });
     }
   },
   // Actions
@@ -19159,6 +19571,53 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   actions: {
     addTodo: function addTodo(context, todo) {
       context.commit('addTodo', todo);
+    },
+    deleteTodo: function deleteTodo(context, todo) {
+      context.commit('deleteTodo', todo);
+    },
+    updateTodo: function updateTodo(context, todo) {
+      context.commit('updateTodo', todo); // axios.patch('/todos/' + todo.id, {
+      //     title: todo.title,
+      //     completed: todo.completed,
+      // })
+      //     .then(response => {
+      //         context.commit('updateTodo', response.data)
+      //     })
+      //     .catch(error => {
+      //         console.log(error)
+      //     })
+    },
+    updateFilter: function updateFilter(context, filter) {
+      context.commit('updateFilter', filter);
+    },
+    checkAll: function checkAll(context, checked) {
+      // axios.patch('/todosCheckAll', {
+      //     completed: checked,
+      // })
+      //     .then(response => {
+      //         context.commit('checkAll', checked)
+      //     })
+      //     .catch(error => {
+      //         console.log(error)
+      //     })
+      context.commit('checkAll', checked);
+    },
+    removeCompleted: function removeCompleted(context) {
+      // const completed = context.state.todos
+      //     .filter(todo => todo.completed)
+      //     .map(todo => todo.id)
+      // axios.delete('/todosDeleteCompleted', {
+      //     data: {
+      //         todos: completed
+      //     }
+      // })
+      //     .then(response => {
+      //         context.commit('clearCompleted')
+      //     })
+      //     .catch(error => {
+      //         console.log(error)
+      //     })
+      context.commit('removeCompleted');
     }
   }
 }));

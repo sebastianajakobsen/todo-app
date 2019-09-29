@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 
 
 Vue.use(Vuex)
@@ -12,25 +13,22 @@ export default new Vuex.Store({
     // take snapshots of the current app state for debugging purposes.
     state: {
 
-        filter: 'All',
+        filter: 'all',
         todos: [
             {
                 'id': 1,
                 'title': 'First todo',
                 'completed': false,
-                'editing': false
             },
             {
                 'id': 2,
                 'title': 'Take over the world',
                 'completed': false,
-                'editing': false
             },
             {
                 'id': 3,
                 'title': 'Code every day',
                 'completed': true,
-                'editing': false
             },
         ]
 
@@ -40,15 +38,33 @@ export default new Vuex.Store({
     // Sometimes we may need to compute derived state based on store state,
     // for example filtering through a list of items and counting them:
     getters: {
-
-
-        allTodos(state) {
-            return state.todos;
+        todosFiltered(state) {
+            if (state.filter == 'all') {
+                return state.todos
+            } else if (state.filter == 'active') {
+                return state.todos.filter(todo => !todo.completed)
+            } else if (state.filter == 'completed') {
+                return state.todos.filter(todo => todo.completed)
+            }
+            return state.todos
         },
 
-        todosCount(state){
-            return state.todos.length;
-        }
+        filter(state){
+            return state.filter
+        },
+
+        showClearCompletedButton(state) {
+            return state.todos.filter(todo => todo.completed).length > 0
+        },
+
+
+        remaining(state) {
+            return state.todos.filter(todo => !todo.completed).length;
+        },
+
+        anyRemaining(state, getters) {
+            return getters.remaining != 0
+        },
 
     },
 
@@ -64,10 +80,37 @@ export default new Vuex.Store({
                     id: todo.id,
                     title: todo.title,
                     completed: false,
-                    editing:false
+                    editing: false
                 }
             );
-        }
+        },
+
+        updateFilter(state, filter) {
+            state.filter = filter;
+        },
+
+        updateTodo(state, todo) {
+            const index = state.todos.findIndex(item => item.id == todo.id)
+            state.todos.splice(index, 1, {
+                'id': todo.id,
+                'title': todo.title,
+                'completed': todo.completed,
+                'editing': todo.editing,
+            })
+        },
+
+
+        deleteTodo(state, todo) {
+            const index = state.todos.findIndex(item => item.id == todo.id)
+            state.todos.splice(index, 1)
+        },
+
+        checkAll(state, checked) {
+            state.todos.forEach(todo => (todo.completed = checked))
+        },
+        removeCompleted(state) {
+            state.todos = state.todos.filter(todo => !todo.completed)
+        },
     },
 
     // Actions
@@ -78,6 +121,64 @@ export default new Vuex.Store({
 
         addTodo(context, todo) {
             context.commit('addTodo', todo)
+        },
+
+        deleteTodo(context, todo) {
+            context.commit('deleteTodo', todo)
+        },
+
+
+        updateTodo(context, todo) {
+            context.commit('updateTodo', todo)
+
+            // axios.patch('/todos/' + todo.id, {
+            //     title: todo.title,
+            //     completed: todo.completed,
+            // })
+            //     .then(response => {
+            //         context.commit('updateTodo', response.data)
+            //     })
+            //     .catch(error => {
+            //         console.log(error)
+            //     })
+        },
+
+        updateFilter(context, filter) {
+
+            context.commit('updateFilter', filter)
+
+        },
+
+        checkAll(context, checked) {
+            // axios.patch('/todosCheckAll', {
+            //     completed: checked,
+            // })
+            //     .then(response => {
+            //         context.commit('checkAll', checked)
+            //     })
+            //     .catch(error => {
+            //         console.log(error)
+            //     })
+
+            context.commit('checkAll', checked)
+        },
+
+        removeCompleted(context) {
+            // const completed = context.state.todos
+            //     .filter(todo => todo.completed)
+            //     .map(todo => todo.id)
+            // axios.delete('/todosDeleteCompleted', {
+            //     data: {
+            //         todos: completed
+            //     }
+            // })
+            //     .then(response => {
+            //         context.commit('clearCompleted')
+            //     })
+            //     .catch(error => {
+            //         console.log(error)
+            //     })
+            context.commit('removeCompleted')
         }
     }
 })

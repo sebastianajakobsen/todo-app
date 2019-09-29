@@ -20,6 +20,19 @@ const router = new VueRouter({
 
 });
 
+// When the page loads, that element gains focus
+// (note: autofocus doesn’t work on mobile Safari).
+// In fact, if you haven’t clicked on anything else since visiting this page,
+// the input above should be focused now. Now let’s build the directive that accomplishes this:
+// Register a global custom directive called `v-focus`
+Vue.directive('focus', {
+    // When the bound element is inserted into the DOM...
+    inserted: function (el) {
+        // Focus the element
+        el.focus()
+    }
+})
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
