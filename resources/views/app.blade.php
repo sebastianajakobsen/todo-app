@@ -8,7 +8,7 @@
         <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
     </head>
     <body>
-        <div id="app">
+        <div id="app" class="h-full bg-green-100">
             <master></master>
         </div>
         <script src="{{ mix('/js/app.js') }}"></script>

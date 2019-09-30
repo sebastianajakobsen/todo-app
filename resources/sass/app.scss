@@ -12,3 +12,12 @@
 @tailwind components;
 
 @tailwind utilities;
+
+html {
+    overflow-y: scroll;
+}
+
+html, body {
+    width:100%;
+    height:100%;
+}

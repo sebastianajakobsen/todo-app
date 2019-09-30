@@ -1,13 +1,13 @@
 <template>
-    <div class="w-1/3 mx-auto">
+    <div class="w-1/3 mx-auto p-2 bg-gray-200">
 
-        <div class="bg-green-400 p-2 ">
-            <h1 class="text-3xl text-center text-white">Todo</h1>
+        <div class="bg-green-500 p-2 border-b-4 border-blue-800 ">
+            <h1 class="text-3xl text-center text-white font-bold">Todo</h1>
         </div>
 
 
         <div class="my-2">
-            <input class="border border-blue-400 p-2 w-full"
+            <input class="border border-blue-800 p-2 w-full"
                    type="text"
                    v-model="newTodo"
                    @keyup.enter="addTodo"
@@ -54,19 +54,19 @@
             <div class="flex">
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400':filter == 'all'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'all'}"
                             @click="updateFilter('all')">All
                     </button>
                 </div>
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400':filter == 'active'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'active'}"
                             @click="updateFilter('active')">Active
                     </button>
                 </div>
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400':filter == 'completed'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'completed'}"
                             @click="updateFilter('completed')">Completed
                     </button>
                 </div>
