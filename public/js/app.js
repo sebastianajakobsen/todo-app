@@ -1891,8 +1891,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'navigation',
   mounted: function mounted() {
@@ -2113,6 +2111,14 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3121,8 +3127,29 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", [
-      _c("h1", { staticClass: "text-center text-3xl" }, [_vm._v("Login")])
+    return _c("div", { staticClass: "w-1/4 mx-auto" }, [
+      _c("h1", { staticClass: "p-2 " }, [_vm._v("Login")]),
+      _vm._v(" "),
+      _c("div", { staticClass: "p-2" }, [
+        _c("input", {
+          staticClass: "w-full border border-blue-400 p-2 mb-2",
+          attrs: { type: "text", placeholder: "Username" }
+        }),
+        _vm._v(" "),
+        _c("input", {
+          staticClass: "w-full border border-blue-400 p-2 mb-2",
+          attrs: { type: "password", placeholder: "Password" }
+        }),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            staticClass:
+              "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          },
+          [_vm._v("\n            submit\n        ")]
+        )
+      ])
     ])
   }
 ]
