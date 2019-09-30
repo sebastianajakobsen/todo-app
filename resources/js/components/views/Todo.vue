@@ -29,7 +29,7 @@
 
             <div v-else class="flex-grow mx-2">
                 <input class="w-full border border-blue-400 p-2" type="text"
-                       @blur="updateTodo(todo)"
+                       @blur="cancelEdit(todo)"
                        @keyup.enter="updateTodo(todo)"
                        @keyup.esc="cancelEdit(todo)"
                        v-model="todo.title"
@@ -94,10 +94,13 @@
             return {
                 editedTodo: null,
                 newTodo: '',
-                todoId: 4,
             }
         },
 
+        created() {
+            // get all todos on
+            this.$store.dispatch('getTodos')
+        },
 
         computed: {
 
@@ -136,10 +139,9 @@
                     return
                 }
                 this.$store.dispatch('addTodo', {
-                    id: this.todoId,
                     title: this.newTodo,
                 })
-                this.todoId++
+
                 this.newTodo = ''
             },
 

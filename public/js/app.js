@@ -2015,9 +2015,12 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       editedTodo: null,
-      newTodo: '',
-      todoId: 4
+      newTodo: ''
     };
+  },
+  created: function created() {
+    // get all todos on
+    this.$store.dispatch('getTodos');
   },
   computed: {
     showClearCompletedButton: function showClearCompletedButton() {
@@ -2049,10 +2052,8 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.$store.dispatch('addTodo', {
-        id: this.todoId,
         title: this.newTodo
       });
-      this.todoId++;
       this.newTodo = '';
     },
     updateFilter: function updateFilter(filter) {
@@ -2816,7 +2817,7 @@ var render = function() {
                   domProps: { value: todo.title },
                   on: {
                     blur: function($event) {
-                      return _vm.updateTodo(todo)
+                      return _vm.cancelEdit(todo)
                     },
                     keyup: [
                       function($event) {
@@ -19469,21 +19470,9 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   // take snapshots of the current app state for debugging purposes.
   state: {
     filter: 'all',
-    todos: [{
-      'id': 1,
-      'title': 'First todo',
-      'completed': false
-    }, {
-      'id': 2,
-      'title': 'Take over the world',
-      'completed': false
-    }, {
-      'id': 3,
-      'title': 'Code every day',
-      'completed': true
-    }]
+    todos: []
   },
-  // Getters
+  // Getters -> filter of local data
   // Sometimes we may need to compute derived state based on store state,
   // for example filtering through a list of items and counting them:
   getters: {
@@ -19519,7 +19508,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
       return getters.remaining != 0;
     }
   },
-  // Mutations
+  // Mutations -> local data
   // The only way to actually change state in a Vuex store is by committing a mutation.
   // Vuex mutations are very similar to events: each mutation has a string type and a handler.
   // The handler function is where we perform actual state modifications,
@@ -19562,62 +19551,81 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
       state.todos = state.todos.filter(function (todo) {
         return !todo.completed;
       });
+    },
+    getTodos: function getTodos(state, data) {
+      state.todos = data;
     }
   },
-  // Actions
+  // Actions -> database data
   // Actions are similar to mutations, the differences being that:
   //  * Instead of mutating the state, actions commit mutations.
   //  * Actions can contain arbitrary asynchronous operations.
   actions: {
+    getTodos: function getTodos(context) {
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.get('/api/todos').then(function (response) {
+        context.commit('getTodos', response.data);
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
     addTodo: function addTodo(context, todo) {
-      context.commit('addTodo', todo);
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/api/todos', {
+        title: todo.title,
+        completed: false
+      }).then(function (response) {
+        context.commit('addTodo', response.data);
+      })["catch"](function (error) {
+        console.log(error);
+      });
     },
     deleteTodo: function deleteTodo(context, todo) {
-      context.commit('deleteTodo', todo);
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a["delete"]('/api/todos/' + todo.id).then(function (response) {
+        context.commit('deleteTodo', todo);
+      })["catch"](function (error) {
+        console.log(error);
+      });
     },
     updateTodo: function updateTodo(context, todo) {
-      context.commit('updateTodo', todo); // axios.patch('/todos/' + todo.id, {
-      //     title: todo.title,
-      //     completed: todo.completed,
-      // })
-      //     .then(response => {
-      //         context.commit('updateTodo', response.data)
-      //     })
-      //     .catch(error => {
-      //         console.log(error)
-      //     })
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.patch('/api/todos/' + todo.id, {
+        title: todo.title,
+        completed: todo.completed
+      }).then(function (response) {
+        context.commit('updateTodo', response.data);
+      })["catch"](function (error) {
+        console.log(error);
+      });
     },
     updateFilter: function updateFilter(context, filter) {
       context.commit('updateFilter', filter);
     },
     checkAll: function checkAll(context, checked) {
-      // axios.patch('/todosCheckAll', {
-      //     completed: checked,
-      // })
-      //     .then(response => {
-      //         context.commit('checkAll', checked)
-      //     })
-      //     .catch(error => {
-      //         console.log(error)
-      //     })
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.patch('/api/todosCheckAll', {
+        completed: checked
+      }).then(function (response) {
+        context.commit('checkAll', checked);
+      })["catch"](function (error) {
+        console.log(error);
+      });
       context.commit('checkAll', checked);
     },
     removeCompleted: function removeCompleted(context) {
-      // const completed = context.state.todos
-      //     .filter(todo => todo.completed)
-      //     .map(todo => todo.id)
-      // axios.delete('/todosDeleteCompleted', {
-      //     data: {
-      //         todos: completed
-      //     }
-      // })
-      //     .then(response => {
-      //         context.commit('clearCompleted')
-      //     })
-      //     .catch(error => {
-      //         console.log(error)
-      //     })
-      context.commit('removeCompleted');
+      // filter then once that are completed
+      // map over each one of those and return their id's
+      var completed = context.state.todos.filter(function (todo) {
+        return todo.completed;
+      }).map(function (todo) {
+        return todo.id;
+      }); // mass delete by sending array of ids that should be deleted!
+
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a["delete"]('/api/todosDeleteCompleted', {
+        data: {
+          todos: completed
+        }
+      }).then(function (response) {
+        context.commit('removeCompleted');
+      })["catch"](function (error) {
+        console.log(error);
+      });
     }
   }
 }));
