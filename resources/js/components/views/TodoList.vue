@@ -14,7 +14,7 @@
                    placeholder="Write todo">
         </div>
 
-        <div class="p-2 flex" v-for="todo in todosFiltered" :key="todo.id">
+        <div class="p-2 flex" v-for="todo in getTodosFiltered" :key="todo.id">
             <div class="m-2">
                 <input class="p-2" type="checkbox"
                        v-model="todo.completed"
@@ -43,10 +43,10 @@
 
         <div class="flex justify-between my-2  border-b-2 border-t-2 p-2">
             <div>
-                <input type="checkbox" :checked="!anyRemaining" @change="allChecked"> Check all
+                <input type="checkbox" :checked="!isAnyRemaining" @change="checkAll"> Check all
             </div>
             <div>
-                {{remaining}} items left
+                {{getRemainingTodos}} items left
             </div>
         </div>
 
@@ -54,25 +54,25 @@
             <div class="flex">
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'all'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':getFilter == 'all'}"
                             @click="updateFilter('all')">All
                     </button>
                 </div>
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'active'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':getFilter == 'active'}"
                             @click="updateFilter('active')">Active
                     </button>
                 </div>
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
-                            :class="{'bg-green-400 border-2 border-blue-800':filter == 'completed'}"
+                            :class="{'bg-green-400 border-2 border-blue-800':getFilter == 'completed'}"
                             @click="updateFilter('completed')">Completed
                     </button>
                 </div>
             </div>
 
-            <div v-if="showClearCompletedButton">
+            <div v-if="isAnyTodoCompleted">
                 <div class="m-2">
                     <button  class="p-2 bg-gray-400 hover:bg-green-400"
 
@@ -88,7 +88,7 @@
 
 <script>
     export default {
-        name: 'todo',
+        name: 'TodoList',
 
         data() {
             return {
@@ -99,27 +99,27 @@
 
         created() {
             // get all todos on
-            this.$store.dispatch('getTodos')
+            this.$store.dispatch('fetchTodos')
         },
 
         computed: {
 
-            showClearCompletedButton() {
-                return this.$store.getters.showClearCompletedButton
+            isAnyTodoCompleted() {
+                return this.$store.getters.isAnyTodoCompleted
             },
 
-            filter() {
-                return this.$store.getters.filter
+            getFilter() {
+                return this.$store.getters.getFilter
             },
 
-            todosFiltered() {
-                return this.$store.getters.todosFiltered;
+            getTodosFiltered() {
+                return this.$store.getters.getTodosFiltered;
             },
-            remaining() {
-                return this.$store.getters.remaining;
+            getRemainingTodos() {
+                return this.$store.getters.getRemainingTodos;
             },
-            anyRemaining() {
-                return this.$store.getters.anyRemaining;
+            isAnyRemaining() {
+                return this.$store.getters.isAnyRemaining;
             },
 
         },
@@ -130,7 +130,7 @@
                 this.$store.dispatch('removeCompleted')
             },
 
-            allChecked() {
+            checkAll() {
                 this.$store.dispatch('checkAll', event.target.checked)
             },
 

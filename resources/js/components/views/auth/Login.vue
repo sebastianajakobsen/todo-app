@@ -3,7 +3,7 @@
         <h1 class="p-2 ">Login</h1>
 
         <div class="p-2">
-            <form action="#" @submit.prevent="login">
+            <form action="#" @submit.prevent="loginUser">
                 <label for="username">Username</label>
                 <input name="username" type="text" class="w-full border border-blue-400 p-2 mb-2" placeholder="Username"
                        v-model="username">
@@ -20,7 +20,7 @@
 
 <script>
     export default {
-        name: 'login',
+        name: 'Login',
         data() {
             return {
                 username: '',
@@ -29,13 +29,13 @@
         },
 
         methods: {
-            login() {
-                this.$store.dispatch('login', {
+            loginUser() {
+                this.$store.dispatch('loginUser', {
                     username:this.username,
                     password:this.password
                 })
                     .then(response => {
-                        this.$router.push({name:'todo'})
+                        this.$router.push({name:'todolist'})
                     })
             }
         }

@@ -4,7 +4,9 @@
 <script>
     export default {
         created() {
-            this.$store.dispatch('logout')
+
+            this.$store.dispatch('clearTodos')
+            this.$store.dispatch('logoutUser')
                 .then(response => {
                     this.$router.push({name:'frontpage'})
                 })

@@ -11,6 +11,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
 import store from "./store/store";
+import axios from 'axios'
 
 Vue.use(VueRouter)
 
@@ -28,7 +29,7 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         // this route requires auth, check if logged in
         // if not, redirect to login page.
-        if (!store.getters.loggedIn) {
+        if (!store.getters.isUserLoggedIn) {
             next({
                 name: 'login',
             })
@@ -38,7 +39,7 @@ router.beforeEach((to, from, next) => {
     } else if (to.matched.some(record => record.meta.requiresGuest)) {
         // this route requires auth, check if logged in
         // if not, redirect to login page.
-        if (store.getters.loggedIn) {
+        if (store.getters.isUserLoggedIn) {
             next({
                 name: 'todo',
             })
@@ -49,6 +50,26 @@ router.beforeEach((to, from, next) => {
         next() // make sure to always call next()!
     }
 })
+
+
+// axios Interceptors
+// The interceptor here ensures that we check for the token in local storage every time an ajax request is made
+// So backend laravel api can find auth user by access token
+axios.interceptors.request.use(
+    (config) => {
+        let token = localStorage.getItem('access_token');
+
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${ token }`;
+        }
+
+        return config;
+    },
+
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 
 

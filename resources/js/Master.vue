@@ -1,14 +1,14 @@
 <template>
     <div>
-            <navigation></navigation>
+            <nav-bar></nav-bar>
             <router-view></router-view>
     </div>
 </template>
 
 <script>
-    import Navigation from "./components/Navigation";
+    import NavBar from "./components/NavBar";
     export default {
-        components: {Navigation},
+        components: {NavBar},
         mounted() {
             console.log('Component mounted.')
         }

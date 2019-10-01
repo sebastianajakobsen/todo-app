@@ -2,7 +2,7 @@
     <div class="w-1/4 mx-auto">
         <h1 class="text-center text-3xl">Register</h1>
         <div class="p-2">
-            <form action="#" @submit.prevent="register">
+            <form action="#" @submit.prevent="registerUser">
                 <label for="username">Username</label>
                 <input name="username" type="text" class="w-full border border-blue-400 p-2 mb-2" placeholder="Username"
                        v-model="name">
@@ -25,7 +25,7 @@
 
 <script>
     export default {
-        name: 'register',
+        name: 'Register',
         data() {
             return {
                 name: '',
@@ -36,8 +36,8 @@
         },
 
         methods: {
-            register() {
-                this.$store.dispatch('register', {
+            registerUser() {
+                this.$store.dispatch('registerUser', {
                     name:this.name,
                     email:this.email,
                     password:this.password

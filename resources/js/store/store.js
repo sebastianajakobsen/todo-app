@@ -21,14 +21,15 @@ export default new Vuex.Store({
     // Getters -> filter of local data
     // Sometimes we may need to compute derived state based on store state,
     // for example filtering through a list of items and counting them:
+    // Start from is when returns Boolean, or get otherwise
     getters: {
 
         // Check to see if user is logged in
-        loggedIn(state) {
+        isUserLoggedIn(state) {
           return state.access_token !== null
         },
 
-        todosFiltered(state) {
+        getTodosFiltered(state) {
             if (state.filter == 'all') {
                 return state.todos
             } else if (state.filter == 'active') {
@@ -39,21 +40,21 @@ export default new Vuex.Store({
             return state.todos
         },
 
-        filter(state) {
+        getFilter(state) {
             return state.filter
         },
 
-        showClearCompletedButton(state) {
+        isAnyTodoCompleted(state) {
             return state.todos.filter(todo => todo.completed).length > 0
         },
 
 
-        remaining(state) {
+        getRemainingTodos(state) {
             return state.todos.filter(todo => !todo.completed).length;
         },
 
-        anyRemaining(state, getters) {
-            return getters.remaining != 0
+        isAnyRemaining(state, getters) {
+            return getters.getRemainingTodos != 0
         },
 
     },
@@ -64,7 +65,7 @@ export default new Vuex.Store({
     // The handler function is where we perform actual state modifications,
     // and it will receive the state as the first argument:
     mutations: {
-        addTodo(state, todo) {
+        ADD_TODO(state, todo) {
             state.todos.push(
                 {
                     id: todo.id,
@@ -75,11 +76,11 @@ export default new Vuex.Store({
             );
         },
 
-        updateFilter(state, filter) {
+        SET_CURRENT_FILTER(state, filter) {
             state.filter = filter;
         },
 
-        updateTodo(state, todo) {
+        SET_UPDATED_TODO(state, todo) {
             const index = state.todos.findIndex(item => item.id == todo.id)
             state.todos.splice(index, 1, {
                 'id': todo.id,
@@ -90,28 +91,33 @@ export default new Vuex.Store({
         },
 
 
-        deleteTodo(state, todo) {
+        REMOVE_TODO(state, todo) {
             const index = state.todos.findIndex(item => item.id == todo.id)
             state.todos.splice(index, 1)
         },
 
-        checkAll(state, checked) {
+        SET_CHECK_ALL(state, checked) {
             state.todos.forEach(todo => (todo.completed = checked))
         },
-        removeCompleted(state) {
+
+        REMOVE_COMPLETED_TODOS(state) {
             state.todos = state.todos.filter(todo => !todo.completed)
         },
 
-        getTodos(state, data) {
+        ADD_FETCHED_TODOS(state, data) {
             state.todos = data;
         },
 
-        login(state, token) {
+        ADD_ACCESS_TOKEN(state, token) {
             state.access_token = token;
         },
 
-        logout(state) {
+        REMOVE_ACCESS_TOKEN(state) {
             state.access_token = null;
+        },
+
+        REMOVE_ALL_TODOS(state) {
+            state.todos = [];
         }
 
     },
@@ -120,14 +126,19 @@ export default new Vuex.Store({
     // Actions are similar to mutations, the differences being that:
     //  * Instead of mutating the state, actions commit mutations.
     //  * Actions can contain arbitrary asynchronous operations.
+    // Almost every action should return promise.
+    // We allow you to replicate conventions for existing methods like list or single in new modules to have a consistent API.
     actions: {
 
+        clearTodos(context) {
+            context.commit('REMOVE_ALL_TODOS')
+        },
 
+        fetchTodos(context) {
 
-        getTodos(context) {
             axios.get('/api/todos')
                 .then(response => {
-                    context.commit('getTodos', response.data)
+                    context.commit('ADD_FETCHED_TODOS', response.data)
                 })
                 .catch(error => {
                     console.log(error)
@@ -141,7 +152,7 @@ export default new Vuex.Store({
                 completed: false
             })
                 .then(response => {
-                    context.commit('addTodo', response.data)
+                    context.commit('ADD_TODO', response.data)
                 })
                 .catch(error => {
                     console.log(error)
@@ -150,9 +161,10 @@ export default new Vuex.Store({
         },
 
         deleteTodo(context, todo) {
+
             axios.delete('/api/todos/' + todo.id)
                 .then(response => {
-                    context.commit('deleteTodo', todo)
+                    context.commit('REMOVE_TODO', todo)
                 })
                 .catch(error => {
                     console.log(error)
@@ -161,12 +173,13 @@ export default new Vuex.Store({
 
 
         updateTodo(context, todo) {
+
             axios.patch('/api/todos/' + todo.id, {
                 title: todo.title,
                 completed: todo.completed
             })
                 .then(response => {
-                    context.commit('updateTodo', response.data)
+                    context.commit('SET_UPDATED_TODO', response.data)
                 })
                 .catch(error => {
                     console.log(error)
@@ -175,47 +188,57 @@ export default new Vuex.Store({
         },
 
         updateFilter(context, filter) {
-            context.commit('updateFilter', filter)
+            context.commit('SET_CURRENT_FILTER', filter)
         },
 
         checkAll(context, checked) {
+
             axios.patch('/api/todosCheckAll', {
                 completed: checked,
             })
                 .then(response => {
-                    context.commit('checkAll', checked)
+                    context.commit('SET_CHECK_ALL', checked)
                 })
                 .catch(error => {
                     console.log(error)
                 })
-
-            context.commit('checkAll', checked)
         },
 
         removeCompleted(context) {
 
-            // filter then once that are completed
-            // map over each one of those and return their id's
-            const completed = context.state.todos
-                .filter(todo => todo.completed)
-                .map(todo => todo.id)
+            // // filter then once that are completed
+            // // map over each one of those and return their id's
+            // const completed = context.state.todos
+            //     .filter(todo => todo.completed)
+            //     .map(todo => todo.id)
+            //
+            // // mass delete by sending array of ids that should be deleted!
+            // axios.delete('/api/todosDeleteCompleted', {
+            //     data: {
+            //         todos: completed
+            //     }
+            // })
+            //     .then(response => {
+            //         context.commit('REMOVE_COMPLETED_TODOS')
+            //     })
+            //     .catch(error => {
+            //         console.log(error)
+            //     })
 
-            // mass delete by sending array of ids that should be deleted!
-            axios.delete('/api/todosDeleteCompleted', {
-                data: {
-                    todos: completed
-                }
-            })
+
+            // Mass delete all completed todos
+            axios.delete('/api/todosDeleteCompleted')
                 .then(response => {
-                    context.commit('removeCompleted')
+                    context.commit('REMOVE_COMPLETED_TODOS')
                 })
                 .catch(error => {
                     console.log(error)
                 })
 
+
         },
 
-        login(context, credentials) {
+        loginUser(context, credentials) {
 
             // Promise for letting the parent know if
             // it got resolve or rejectet
@@ -228,9 +251,9 @@ export default new Vuex.Store({
             })
                 .then(response => {
 
-                    const accessToken = response.data.access_token;
-                    localStorage.setItem('access_token', accessToken)
-                    context.commit('login', accessToken)
+                    const token = response.data.access_token;
+                    localStorage.setItem('access_token', token)
+                    context.commit('ADD_ACCESS_TOKEN', token)
                     resolve(response)
                 })
                 .catch(error => {
@@ -240,29 +263,28 @@ export default new Vuex.Store({
             })
         },
 
-        logout(context) {
-            // passing ind Auth header for access token.
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.access_token
+        logoutUser(context) {
+
             // if user is logged in
-            if(context.getters.loggedIn){
+            if(context.getters.isUserLoggedIn){
                 // make new promise -> if resolve then logout components will redirect
                 return new Promise((resolve, reject) => {
                     axios.post('/api/logout')
                         .then(response => {
                             localStorage.removeItem('access_token')
-                            context.commit('logout')
+                            context.commit('REMOVE_ACCESS_TOKEN')
                             resolve(response)
                         })
                         .catch(error => {
                             localStorage.removeItem('access_token')
-                            context.commit('logout')
+                            context.commit('REMOVE_ACCESS_TOKEN')
                             reject(error)
                         })
                 })
             }
         },
 
-        register(context, data) {
+        registerUser(context, data) {
             return new Promise((resolve, reject) => {
 
                 axios.post('/api/register', {

@@ -13,19 +13,28 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::post('logout', 'AuthController@logout');
+
+    Route::get('/todos', 'TodoController@index');
+    Route::post('/todos', 'TodoController@store');
+    Route::patch('/todos/{todo}', 'TodoController@update');
+    Route::patch('/todosCheckAll', 'TodoController@updateAll');
+    Route::delete('/todos/{todo}', 'TodoController@destroy');
+    Route::delete('/todosDeleteCompleted', 'TodoController@destroyCompleted');
+
 });
+
 
 
 Route::post('/login', 'AuthController@login');
 Route::post('/register', 'AuthController@register');
-Route::middleware('auth:api')->post('logout', 'AuthController@logout');
 
 
-Route::get('/todos', 'TodoController@index');
-Route::post('/todos', 'TodoController@store');
-Route::patch('/todos/{todo}', 'TodoController@update');
-Route::patch('/todosCheckAll', 'TodoController@updateAll');
-Route::delete('/todos/{todo}', 'TodoController@destroy');
-Route::delete('/todosDeleteCompleted', 'TodoController@destroyCompleted');
+
+
+

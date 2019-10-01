@@ -11,6 +11,12 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+
+    public function todos()
+    {
+        return $this->hasMany('App\Todo', 'user_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

@@ -6,11 +6,11 @@
                     <router-link :to="{ name: 'frontpage'}">Frontpage</router-link>
                 </li>
                 <li class="px-5">
-                    <router-link :to="{ name: 'todo'}">Todo</router-link>
+                    <router-link :to="{ name: 'todolist'}">Todo</router-link>
                 </li>
             </div>
 
-            <div class="flex" v-if="!loggedIn">
+            <div class="flex" v-if="!isUserLoggedIn">
                 <li class="px-5">
                     <router-link :to="{ name: 'login'}">Login</router-link>
                 </li>
@@ -30,10 +30,10 @@
 
 <script>
     export default {
-        name:'navigation',
+        name:'NavBar',
         computed: {
-            loggedIn() {
-                return this.$store.getters.loggedIn;
+            isUserLoggedIn() {
+                return this.$store.getters.isUserLoggedIn;
             }
         }
     }

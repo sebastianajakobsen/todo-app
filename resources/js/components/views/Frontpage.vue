@@ -6,7 +6,7 @@
 
 <script>
     export default {
-        name:'frontpage',
+        name:'Frontpage',
         mounted() {
             console.log('Component mounted.')
         }
