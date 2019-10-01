@@ -1,9 +1,8 @@
 
 ## About Todo App
 
-Simple todo app using Laravel as backend and Vue as frontend. 
-The todo app is using a state management pattern + library called vuex
-and Vue Router for making the app a Single Page application 
+Simple SPA todo app using Laravel as backend with Passport Auth with Vue & Vuex state management pattern + library as the frontend part of the app.
+
 
 ## Install
 
