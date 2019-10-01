@@ -20,6 +20,38 @@ const router = new VueRouter({
 
 });
 
+
+// global navigation guard:
+// Checking if user is loggedIn or not
+// and redirectiong base on what routes they can access
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        // this route requires auth, check if logged in
+        // if not, redirect to login page.
+        if (!store.getters.loggedIn) {
+            next({
+                name: 'login',
+            })
+        } else {
+            next()
+        }
+    } else if (to.matched.some(record => record.meta.requiresGuest)) {
+        // this route requires auth, check if logged in
+        // if not, redirect to login page.
+        if (store.getters.loggedIn) {
+            next({
+                name: 'todo',
+            })
+        } else {
+            next()
+        }
+    } else {
+        next() // make sure to always call next()!
+    }
+})
+
+
+
 // When the page loads, that element gains focus
 // (note: autofocus doesn’t work on mobile Safari).
 // In fact, if you haven’t clicked on anything else since visiting this page,

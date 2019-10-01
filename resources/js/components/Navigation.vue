@@ -10,12 +10,18 @@
                 </li>
             </div>
 
-            <div class="flex">
+            <div class="flex" v-if="!loggedIn">
                 <li class="px-5">
                     <router-link :to="{ name: 'login'}">Login</router-link>
                 </li>
                 <li class="px-5">
                     <router-link :to="{ name: 'register'}">Register</router-link>
+                </li>
+            </div>
+
+            <div class="flex" v-else>
+                <li class="px-5">
+                    <router-link :to="{ name: 'logout'}">Logout</router-link>
                 </li>
             </div>
         </nav>
@@ -25,8 +31,10 @@
 <script>
     export default {
         name:'navigation',
-        mounted() {
-            console.log('Component mounted.')
+        computed: {
+            loggedIn() {
+                return this.$store.getters.loggedIn;
+            }
         }
     }
 </script>

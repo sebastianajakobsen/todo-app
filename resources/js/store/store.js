@@ -12,7 +12,7 @@ export default new Vuex.Store({
     // A single state tree makes it straightforward to locate a specific piece of state, and allows us to easily
     // take snapshots of the current app state for debugging purposes.
     state: {
-
+        access_token: localStorage.getItem('access_token') || null,
         filter: 'all',
         todos: [],
 
@@ -22,6 +22,12 @@ export default new Vuex.Store({
     // Sometimes we may need to compute derived state based on store state,
     // for example filtering through a list of items and counting them:
     getters: {
+
+        // Check to see if user is logged in
+        loggedIn(state) {
+          return state.access_token !== null
+        },
+
         todosFiltered(state) {
             if (state.filter == 'all') {
                 return state.todos
@@ -33,7 +39,7 @@ export default new Vuex.Store({
             return state.todos
         },
 
-        filter(state){
+        filter(state) {
             return state.filter
         },
 
@@ -100,6 +106,14 @@ export default new Vuex.Store({
             state.todos = data;
         },
 
+        login(state, token) {
+            state.access_token = token;
+        },
+
+        logout(state) {
+            state.access_token = null;
+        }
+
     },
 
     // Actions -> database data
@@ -108,7 +122,9 @@ export default new Vuex.Store({
     //  * Actions can contain arbitrary asynchronous operations.
     actions: {
 
-        getTodos(context){
+
+
+        getTodos(context) {
             axios.get('/api/todos')
                 .then(response => {
                     context.commit('getTodos', response.data)
@@ -122,7 +138,7 @@ export default new Vuex.Store({
 
             axios.post('/api/todos', {
                 title: todo.title,
-                completed:false
+                completed: false
             })
                 .then(response => {
                     context.commit('addTodo', response.data)
@@ -134,7 +150,7 @@ export default new Vuex.Store({
         },
 
         deleteTodo(context, todo) {
-            axios.delete('/api/todos/'+todo.id)
+            axios.delete('/api/todos/' + todo.id)
                 .then(response => {
                     context.commit('deleteTodo', todo)
                 })
@@ -145,9 +161,9 @@ export default new Vuex.Store({
 
 
         updateTodo(context, todo) {
-            axios.patch('/api/todos/'+todo.id, {
+            axios.patch('/api/todos/' + todo.id, {
                 title: todo.title,
-                completed:todo.completed
+                completed: todo.completed
             })
                 .then(response => {
                     context.commit('updateTodo', response.data)
@@ -199,7 +215,70 @@ export default new Vuex.Store({
 
         },
 
+        login(context, credentials) {
 
+            // Promise for letting the parent know if
+            // it got resolve or rejectet
+            // if resolve then login compontent will redirect user
+            return new Promise((resolve, reject) => {
+
+            axios.post('/api/login', {
+                username: credentials.username,
+                password: credentials.password
+            })
+                .then(response => {
+
+                    const accessToken = response.data.access_token;
+                    localStorage.setItem('access_token', accessToken)
+                    context.commit('login', accessToken)
+                    resolve(response)
+                })
+                .catch(error => {
+                    console.log(error)
+                    reject(error)
+                })
+            })
+        },
+
+        logout(context) {
+            // passing ind Auth header for access token.
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.access_token
+            // if user is logged in
+            if(context.getters.loggedIn){
+                // make new promise -> if resolve then logout components will redirect
+                return new Promise((resolve, reject) => {
+                    axios.post('/api/logout')
+                        .then(response => {
+                            localStorage.removeItem('access_token')
+                            context.commit('logout')
+                            resolve(response)
+                        })
+                        .catch(error => {
+                            localStorage.removeItem('access_token')
+                            context.commit('logout')
+                            reject(error)
+                        })
+                })
+            }
+        },
+
+        register(context, data) {
+            return new Promise((resolve, reject) => {
+
+                axios.post('/api/register', {
+                    name: data.name,
+                    email: data.email,
+                    password: data.password
+                })
+                    .then(response => {
+                        resolve(response)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        reject(error)
+                    })
+            })
+        }
 
     }
 })
