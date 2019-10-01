@@ -98,7 +98,7 @@
         },
 
         created() {
-            // get all todos on
+            // get all todos
             this.$store.dispatch('fetchTodos')
         },
 
@@ -177,9 +177,5 @@
                 todo.title = todo.beforeEditCache;
             }
         },
-
-        mounted() {
-            console.log('Component mounted.')
-        }
     }
 </script>

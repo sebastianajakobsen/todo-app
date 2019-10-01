@@ -7,8 +7,5 @@
 <script>
     export default {
         name:'Frontpage',
-        mounted() {
-            console.log('Component mounted.')
-        }
     }
 </script>

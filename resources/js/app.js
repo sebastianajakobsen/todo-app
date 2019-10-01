@@ -108,5 +108,11 @@ Vue.component('master', require('./Master.vue').default);
 const app = new Vue({
     el: '#app',
     router,
-    store
+    store,
+    created() {
+        this.$store.dispatch('getUserInformation')
+            .then(response => {
+                console.log(response.data)
+            });
+    },
 });

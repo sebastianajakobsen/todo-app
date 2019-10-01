@@ -1902,6 +1902,9 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     isUserLoggedIn: function isUserLoggedIn() {
       return this.$store.getters.isUserLoggedIn;
+    },
+    getUser: function getUser() {
+      return this.$store.getters.getUser;
     }
   }
 });
@@ -1924,10 +1927,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'Frontpage',
-  mounted: function mounted() {
-    console.log('Component mounted.');
-  }
+  name: 'Frontpage'
 });
 
 /***/ }),
@@ -2038,7 +2038,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
-    // get all todos on
+    // get all todos
     this.$store.dispatch('fetchTodos');
   },
   computed: {
@@ -2102,9 +2102,6 @@ __webpack_require__.r(__webpack_exports__);
       this.editedTodo = null;
       todo.title = todo.beforeEditCache;
     }
-  },
-  mounted: function mounted() {
-    console.log('Component mounted.');
   }
 });
 
@@ -2155,8 +2152,10 @@ __webpack_require__.r(__webpack_exports__);
         username: this.username,
         password: this.password
       }).then(function (response) {
-        _this.$router.push({
-          name: 'todolist'
+        _this.$store.dispatch('getUserInformation').then(function (response) {
+          _this.$router.push({
+            name: 'todolist'
+          });
         });
       });
     }
@@ -2182,6 +2181,7 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     this.$store.dispatch('clearTodos');
+    this.$store.dispatch('clearUser');
     this.$store.dispatch('logoutUser').then(function (response) {
       _this.$router.push({
         name: 'frontpage'
@@ -2845,7 +2845,10 @@ var render = function() {
                   { staticClass: "px-5" },
                   [
                     _c("router-link", { attrs: { to: { name: "logout" } } }, [
-                      _vm._v("Logout")
+                      _vm._v("Logout "),
+                      _vm.getUser
+                        ? _c("span", [_vm._v(_vm._s(_vm.getUser.name))])
+                        : _vm._e()
                     ])
                   ],
                   1
@@ -19680,7 +19683,12 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('master', __webpack_require
 var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
   el: '#app',
   router: router,
-  store: _store_store__WEBPACK_IMPORTED_MODULE_3__["default"]
+  store: _store_store__WEBPACK_IMPORTED_MODULE_3__["default"],
+  created: function created() {
+    this.$store.dispatch('getUserInformation').then(function (response) {
+      console.log(response.data);
+    });
+  }
 });
 
 /***/ }),
@@ -20240,6 +20248,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   state: {
     access_token: localStorage.getItem('access_token') || null,
     filter: 'all',
+    user: JSON.parse(localStorage.getItem('user_traits')) || null,
     todos: []
   },
   // Getters -> filter of local data
@@ -20250,6 +20259,9 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
     // Check to see if user is logged in
     isUserLoggedIn: function isUserLoggedIn(state) {
       return state.access_token !== null;
+    },
+    getUser: function getUser(state) {
+      return state.user;
     },
     getTodosFiltered: function getTodosFiltered(state) {
       if (state.filter == 'all') {
@@ -20336,8 +20348,14 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
     REMOVE_ACCESS_TOKEN: function REMOVE_ACCESS_TOKEN(state) {
       state.access_token = null;
     },
+    REMOVE_AUTH_USER: function REMOVE_AUTH_USER(state) {
+      state.user = null;
+    },
     REMOVE_ALL_TODOS: function REMOVE_ALL_TODOS(state) {
       state.todos = [];
+    },
+    ADD_AUTH_USER: function ADD_AUTH_USER(state, user) {
+      state.user = user;
     }
   },
   // Actions -> database data
@@ -20349,6 +20367,10 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
   actions: {
     clearTodos: function clearTodos(context) {
       context.commit('REMOVE_ALL_TODOS');
+    },
+    clearUser: function clearUser(context) {
+      localStorage.removeItem('user_traits');
+      context.commit('REMOVE_AUTH_USER');
     },
     fetchTodos: function fetchTodos(context) {
       axios__WEBPACK_IMPORTED_MODULE_2___default.a.get('/api/todos').then(function (response) {
@@ -20397,24 +20419,6 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
       });
     },
     removeCompleted: function removeCompleted(context) {
-      // // filter then once that are completed
-      // // map over each one of those and return their id's
-      // const completed = context.state.todos
-      //     .filter(todo => todo.completed)
-      //     .map(todo => todo.id)
-      //
-      // // mass delete by sending array of ids that should be deleted!
-      // axios.delete('/api/todosDeleteCompleted', {
-      //     data: {
-      //         todos: completed
-      //     }
-      // })
-      //     .then(response => {
-      //         context.commit('REMOVE_COMPLETED_TODOS')
-      //     })
-      //     .catch(error => {
-      //         console.log(error)
-      //     })
       // Mass delete all completed todos
       axios__WEBPACK_IMPORTED_MODULE_2___default.a["delete"]('/api/todosDeleteCompleted').then(function (response) {
         context.commit('REMOVE_COMPLETED_TODOS');
@@ -20469,6 +20473,18 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
         })["catch"](function (error) {
           console.log(error);
           reject(error);
+        });
+      });
+    },
+    getUserInformation: function getUserInformation(context) {
+      return new Promise(function (resolve, reject) {
+        axios__WEBPACK_IMPORTED_MODULE_2___default.a.get('/api/user').then(function (response) {
+          localStorage.setItem('user_traits', JSON.stringify(response.data));
+          context.commit('ADD_AUTH_USER', response.data);
+          resolve(response);
+        })["catch"](function (error) {
+          reject(error);
+          console.log(error);
         });
       });
     }

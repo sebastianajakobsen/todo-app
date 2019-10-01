@@ -14,6 +14,7 @@ export default new Vuex.Store({
     state: {
         access_token: localStorage.getItem('access_token') || null,
         filter: 'all',
+        user: JSON.parse(localStorage.getItem('user_traits')) || null,
         todos: [],
 
     },
@@ -26,7 +27,11 @@ export default new Vuex.Store({
 
         // Check to see if user is logged in
         isUserLoggedIn(state) {
-          return state.access_token !== null
+            return state.access_token !== null
+        },
+
+        getUser(state) {
+            return state.user
         },
 
         getTodosFiltered(state) {
@@ -116,8 +121,16 @@ export default new Vuex.Store({
             state.access_token = null;
         },
 
+        REMOVE_AUTH_USER(state) {
+            state.user = null;
+        },
+
         REMOVE_ALL_TODOS(state) {
             state.todos = [];
+        },
+
+        ADD_AUTH_USER(state, user) {
+            state.user = user;
         }
 
     },
@@ -133,6 +146,12 @@ export default new Vuex.Store({
         clearTodos(context) {
             context.commit('REMOVE_ALL_TODOS')
         },
+
+        clearUser(context) {
+            localStorage.removeItem('user_traits')
+            context.commit('REMOVE_AUTH_USER')
+        },
+
 
         fetchTodos(context) {
 
@@ -206,26 +225,6 @@ export default new Vuex.Store({
 
         removeCompleted(context) {
 
-            // // filter then once that are completed
-            // // map over each one of those and return their id's
-            // const completed = context.state.todos
-            //     .filter(todo => todo.completed)
-            //     .map(todo => todo.id)
-            //
-            // // mass delete by sending array of ids that should be deleted!
-            // axios.delete('/api/todosDeleteCompleted', {
-            //     data: {
-            //         todos: completed
-            //     }
-            // })
-            //     .then(response => {
-            //         context.commit('REMOVE_COMPLETED_TODOS')
-            //     })
-            //     .catch(error => {
-            //         console.log(error)
-            //     })
-
-
             // Mass delete all completed todos
             axios.delete('/api/todosDeleteCompleted')
                 .then(response => {
@@ -245,28 +244,28 @@ export default new Vuex.Store({
             // if resolve then login compontent will redirect user
             return new Promise((resolve, reject) => {
 
-            axios.post('/api/login', {
-                username: credentials.username,
-                password: credentials.password
-            })
-                .then(response => {
+                axios.post('/api/login', {
+                    username: credentials.username,
+                    password: credentials.password
+                })
+                    .then(response => {
 
-                    const token = response.data.access_token;
-                    localStorage.setItem('access_token', token)
-                    context.commit('ADD_ACCESS_TOKEN', token)
-                    resolve(response)
-                })
-                .catch(error => {
-                    console.log(error)
-                    reject(error)
-                })
+                        const token = response.data.access_token;
+                        localStorage.setItem('access_token', token)
+                        context.commit('ADD_ACCESS_TOKEN', token)
+                        resolve(response)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        reject(error)
+                    })
             })
         },
 
         logoutUser(context) {
 
             // if user is logged in
-            if(context.getters.isUserLoggedIn){
+            if (context.getters.isUserLoggedIn) {
                 // make new promise -> if resolve then logout components will redirect
                 return new Promise((resolve, reject) => {
                     axios.post('/api/logout')
@@ -299,6 +298,21 @@ export default new Vuex.Store({
                         console.log(error)
                         reject(error)
                     })
+            })
+        },
+
+        getUserInformation(context) {
+            return new Promise((resolve, reject) => {
+            axios.get('/api/user')
+                .then(response => {
+                    localStorage.setItem('user_traits', JSON.stringify(response.data))
+                    context.commit('ADD_AUTH_USER', response.data)
+                    resolve(response)
+                })
+                .catch(error => {
+                    reject(error)
+                    console.log(error)
+                })
             })
         }
 

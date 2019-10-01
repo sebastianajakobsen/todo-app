@@ -35,7 +35,12 @@
                     password:this.password
                 })
                     .then(response => {
-                        this.$router.push({name:'todolist'})
+                        this.$store.dispatch('getUserInformation')
+                            .then(response => {
+                            this.$router.push({name:'todolist'})
+                        });
+
+
                     })
             }
         }

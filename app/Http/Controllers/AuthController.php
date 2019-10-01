@@ -11,7 +11,7 @@ class AuthController extends Controller
     //
     public function login(Request $request) {
 
-        $email = $request->input('username');
+//        $email = $request->input('username');
 //        $user = User::where('email','=',$email)->first();
 //
 //        if($user && $user->role === 'admin'){
@@ -32,10 +32,8 @@ class AuthController extends Controller
             'scope' => '*'
         ]);
 
-
         // forward the request to the oauth token request endpoint
         $tokenRequest = Request::create('/oauth/token', 'post');
-
 
         return Route::dispatch($tokenRequest);
     }

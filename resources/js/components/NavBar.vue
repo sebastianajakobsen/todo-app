@@ -21,7 +21,7 @@
 
             <div class="flex" v-else>
                 <li class="px-5">
-                    <router-link :to="{ name: 'logout'}">Logout</router-link>
+                    <router-link :to="{ name: 'logout'}">Logout <span v-if="getUser">{{getUser.name}}</span></router-link>
                 </li>
             </div>
         </nav>
@@ -34,6 +34,9 @@
         computed: {
             isUserLoggedIn() {
                 return this.$store.getters.isUserLoggedIn;
+            },
+            getUser() {
+                return this.$store.getters.getUser;
             }
         }
     }

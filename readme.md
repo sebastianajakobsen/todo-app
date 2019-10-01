@@ -1,7 +1,7 @@
 
 ## About Todo App
 
-Simple SPA todo app using Laravel as backend with Passport Auth with Vue & Vuex state management pattern + library as the frontend part of the app.
+Simple SPA todo app using Laravel as backend with Passport Auth  with Vue & Vuex state management pattern + library as the frontend part of the app.
 
 
 ## Install
