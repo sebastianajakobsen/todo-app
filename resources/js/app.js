@@ -11,14 +11,13 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
 import store from "./store/store";
-import axios from 'axios'
+
 
 Vue.use(VueRouter)
 
 const router = new VueRouter({
     mode: 'history',
     routes,
-
 });
 
 
@@ -60,17 +59,30 @@ axios.interceptors.request.use(
         let token = localStorage.getItem('access_token');
 
         if (token) {
-            config.headers['Authorization'] = `Bearer ${ token }`;
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
 
         return config;
     },
 
     (error) => {
+
         return Promise.reject(error);
     }
 );
 
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response;
+}, function (error) {
+    if (error.response.status == 401) {
+        router.push('/logout').catch(error => {
+        })
+    }
+    return Promise.reject(error);
+});
 
 
 // When the page loads, that element gains focus
@@ -109,10 +121,15 @@ const app = new Vue({
     el: '#app',
     router,
     store,
-    created() {
-        this.$store.dispatch('getUserInformation')
-            .then(response => {
-                console.log(response.data)
-            });
+
+    // on app created (refresh)
+    mounted() {
+        // if user is logged in
+        if(this.$store.getters.isUserLoggedIn) {
+            // getting user information base on access_token in localstorage
+            this.$store.dispatch('getUserInformation')
+                // if errors -> user dosnt exists -> then logout the frontend user
+        }
+
     },
 });

@@ -9,8 +9,5 @@
     import NavBar from "./components/NavBar";
     export default {
         components: {NavBar},
-        mounted() {
-            console.log('Component mounted.')
-        }
     }
 </script>

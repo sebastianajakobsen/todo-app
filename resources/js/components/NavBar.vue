@@ -5,7 +5,7 @@
                 <li class="px-5">
                     <router-link :to="{ name: 'frontpage'}">Frontpage</router-link>
                 </li>
-                <li class="px-5">
+                <li class="px-5" v-if="isUserLoggedIn">
                     <router-link :to="{ name: 'todolist'}">Todo</router-link>
                 </li>
             </div>

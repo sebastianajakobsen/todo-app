@@ -30,9 +30,11 @@ export default new Vuex.Store({
             return state.access_token !== null
         },
 
+        // get user
         getUser(state) {
             return state.user
         },
+
 
         getTodosFiltered(state) {
             if (state.filter == 'all') {
@@ -143,16 +145,6 @@ export default new Vuex.Store({
     // We allow you to replicate conventions for existing methods like list or single in new modules to have a consistent API.
     actions: {
 
-        clearTodos(context) {
-            context.commit('REMOVE_ALL_TODOS')
-        },
-
-        clearUser(context) {
-            localStorage.removeItem('user_traits')
-            context.commit('REMOVE_AUTH_USER')
-        },
-
-
         fetchTodos(context) {
 
             axios.get('/api/todos')
@@ -174,6 +166,7 @@ export default new Vuex.Store({
                     context.commit('ADD_TODO', response.data)
                 })
                 .catch(error => {
+
                     console.log(error)
                 })
 
@@ -262,6 +255,8 @@ export default new Vuex.Store({
             })
         },
 
+
+
         logoutUser(context) {
 
             // if user is logged in
@@ -271,12 +266,21 @@ export default new Vuex.Store({
                     axios.post('/api/logout')
                         .then(response => {
                             localStorage.removeItem('access_token')
+                            localStorage.removeItem('user_traits')
                             context.commit('REMOVE_ACCESS_TOKEN')
+                            context.commit('REMOVE_AUTH_USER')
+                            context.commit('REMOVE_ALL_TODOS')
                             resolve(response)
+
                         })
+                        // if errors -> then still remove all auth data from Localstorage and State -> logging out the Fronted user
+                        // Don't want a rogue user that dosnt exist in the Database to be loggedin!
                         .catch(error => {
                             localStorage.removeItem('access_token')
+                            localStorage.removeItem('user_traits')
                             context.commit('REMOVE_ACCESS_TOKEN')
+                            context.commit('REMOVE_AUTH_USER')
+                            context.commit('REMOVE_ALL_TODOS')
                             reject(error)
                         })
                 })
@@ -295,7 +299,6 @@ export default new Vuex.Store({
                         resolve(response)
                     })
                     .catch(error => {
-                        console.log(error)
                         reject(error)
                     })
             })
@@ -311,7 +314,6 @@ export default new Vuex.Store({
                 })
                 .catch(error => {
                     reject(error)
-                    console.log(error)
                 })
             })
         }

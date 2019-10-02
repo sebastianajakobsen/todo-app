@@ -5,11 +5,43 @@ import Register from "./components/views/auth/Register";
 import Logout from "./components/views/auth/Logout";
 
 const routes = [
-    { path: '/', component: Frontpage, name: 'frontpage' },
-    { path: '/todo', component: Todo, name: 'todolist', meta:{requiresAuth:true} },
-    { path: '/login', component: Login, name: 'login', meta:{requiresGuest:true} },
-    { path: '/register', component: Register, name: 'register', meta:{requiresGuest:true} },
-    { path: '/logout', component: Logout, name: 'logout', meta:{requiresAuth:true} },
+    {
+        path: '/',
+        component: Frontpage,
+        name: 'frontpage'
+    },
+    {
+        path: '/todo',
+        component: Todo,
+        name: 'todolist',
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
+        path: '/login',
+        component: Login,
+        name: 'login',
+        meta: {
+            requiresGuest: true
+        }
+    },
+    {
+        path: '/register',
+        component: Register,
+        name: 'register',
+        meta: {
+            requiresGuest: true
+        }
+    },
+    {
+        path: '/logout',
+        component: Logout,
+        name: 'logout',
+        meta: {
+            requiresAuth: true
+        }
+    },
 ];
 
 
