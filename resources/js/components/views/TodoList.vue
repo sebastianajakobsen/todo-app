@@ -14,32 +14,33 @@
                    placeholder="Write todo">
         </div>
 
-        <div class="p-2 flex" v-for="todo in getTodosFiltered" :key="todo.id">
-            <div class="m-2">
-                <input class="p-2" type="checkbox"
-                       v-model="todo.completed"
-                       @change="updateTodo(todo)">
-            </div>
+        <transition-group name="fade" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutDown">
+            <div class="p-2 flex" v-for="todo in getTodosFiltered" :key="todo.id">
+                <div class="m-2">
+                    <input class="p-2" type="checkbox"
+                           v-model="todo.completed"
+                           @change="updateTodo(todo)">
+                </div>
 
-            <div v-if="editedTodo !== todo" class="flex-grow mx-2 p-2"
-                 :class="{'line-through':todo.completed}"
-                 @dblclick="editTodo(todo)">
-                {{todo.title}}
-            </div>
+                <div v-if="editedTodo !== todo" class="flex-grow mx-2 p-2"
+                     :class="{'line-through':todo.completed}"
+                     @dblclick="editTodo(todo)">
+                    {{todo.title}}
+                </div>
 
-            <div v-else class="flex-grow mx-2">
-                <input class="w-full border border-blue-400 p-2" type="text"
-                       @blur="cancelEdit(todo)"
-                       @keyup.enter="updateTodo(todo)"
-                       @keyup.esc="cancelEdit(todo)"
-                       v-model="todo.title"
-                       v-focus>
+                <div v-else class="flex-grow mx-2">
+                    <input class="w-full border border-blue-400 p-2" type="text"
+                           @blur="cancelEdit(todo)"
+                           @keyup.enter="updateTodo(todo)"
+                           @keyup.esc="cancelEdit(todo)"
+                           v-model="todo.title"
+                           v-focus>
+                </div>
+                <div class="m-2">
+                    <span class="cursor-pointer p-2" @click="deleteTodo(todo)">&times;</span>
+                </div>
             </div>
-
-            <div class="m-2">
-                <span class="cursor-pointer p-2" @click="deleteTodo(todo)">&times;</span>
-            </div>
-        </div>
+        </transition-group>
 
         <div class="flex justify-between my-2  border-b-2 border-t-2 p-2">
             <div>
@@ -50,7 +51,7 @@
             </div>
         </div>
 
-        <div class="flex justify-between" >
+        <div class="flex justify-between">
             <div class="flex">
                 <div class="m-2">
                     <button class="p-2 bg-gray-400 hover:bg-green-400"
@@ -74,7 +75,7 @@
 
             <div v-if="isAnyTodoCompleted">
                 <div class="m-2">
-                    <button  class="p-2 bg-gray-400 hover:bg-green-400"
+                    <button class="p-2 bg-gray-400 hover:bg-green-400"
 
                             @click="removeCompleted('completed')">Clear Completed
                     </button>

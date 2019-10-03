@@ -16,6 +16,7 @@ export default new Vuex.Store({
         filter: 'all',
         user: JSON.parse(localStorage.getItem('user_traits')) || null,
         todos: [],
+        loading:false,
 
     },
 
@@ -28,6 +29,10 @@ export default new Vuex.Store({
         // Check to see if user is logged in
         isUserLoggedIn(state) {
             return state.access_token !== null
+        },
+
+        isLoading(state) {
+            return state.loading == true;
         },
 
         // get user
@@ -81,6 +86,10 @@ export default new Vuex.Store({
                     editing: false
                 }
             );
+        },
+
+        SET_LOADING(state, value) {
+            state.loading = value;
         },
 
         SET_CURRENT_FILTER(state, filter) {
@@ -201,6 +210,10 @@ export default new Vuex.Store({
 
         updateFilter(context, filter) {
             context.commit('SET_CURRENT_FILTER', filter)
+        },
+
+        setLoading(context, value) {
+            context.commit('SET_LOADING', value)
         },
 
         checkAll(context, checked) {

@@ -12,7 +12,23 @@
             this.$store.dispatch('logoutUser')
                 .then(response => {
                     this.$router.push({name:'frontpage'})
+
+                    this.$toasted.show('User is logged out', {
+                        theme: "toasted-primary",
+                        type : 'success',
+                        position: "bottom-right",
+                        action : {
+                            text : 'X',
+                            onClick : (e, toastObject) => {
+                                toastObject.goAway(0);
+                            }
+                        },
+                        duration : 5000,
+                    });
+
                 })
+
+
                 .catch(error => {
                     this.$router.push({name:'frontpage'})
                 })

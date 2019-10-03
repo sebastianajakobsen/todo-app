@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
+
 class AuthController extends Controller
 {
     //
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
 
 //        $email = $request->input('username');
 //        $user = User::where('email','=',$email)->first();
@@ -43,9 +48,9 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|alpha_num|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8',
         ]);
 
         return User::create([
@@ -56,11 +61,24 @@ class AuthController extends Controller
 
     }
 
-    public function logout() {
-        auth()->user()->tokens->each(function ($token, $key) {
-            $token->delete();
-        });
+    public function logout()
+    {
 
+        // logout from current device
+//        Auth::user()->token()->revoke();
+
+       $token = Auth::user()->token()->first();
+
+        DB::table('oauth_refresh_tokens')
+            ->where('access_token_id', $token->id)
+            ->delete();
+
+        Auth::user()->token()->delete();
+
+        // logout from all devices
+//        Auth::user()->tokens->each(function ($token, $key) {
+//            $token->delete();
+//        });
         return response()->json('Logged out successfully', 200);
     }
 }
