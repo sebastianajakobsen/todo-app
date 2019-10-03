@@ -147,10 +147,10 @@ const app = new Vue({
             // trigger 'loading=false' event here
             store.dispatch('setLoading', false);
 
+            // if user is logged in and response code is 401 unauthorized -> User Access_token dosnt match database
+            // logout user on the frontend part just to make sure that rogue user dosnt do anything they shoudnt be able to
             if (store.getters.isUserLoggedIn && error.response.status == 401) {
-
                 router.push('/logout').catch(error => {})
-
             }
             return Promise.reject(error);
         });
