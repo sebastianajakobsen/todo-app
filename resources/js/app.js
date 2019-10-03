@@ -57,51 +57,7 @@ router.beforeEach((to, from, next) => {
 })
 
 
-// axios Interceptors
-// The interceptor here ensures that we check for the token in local storage every time an ajax request is made
-// So backend laravel api can find auth user by access token
-axios.interceptors.request.use(
-    (config) => {
 
-        // trigger 'loading=true' event here
-        store.dispatch('setLoading', true);
-
-        if (store.getters.isUserLoggedIn) {
-            let token = localStorage.getItem('access_token');
-            if (token) {
-                config.headers['Authorization'] = `Bearer ${token}`;
-            }
-        }
-        return config;
-    },
-
-    (error) => {
-        // trigger 'loading=false' event here
-        store.dispatch('setLoading', false);
-        return Promise.reject(error);
-    }
-);
-
-// Add a response interceptor
-axios.interceptors.response.use(function (response) {
-
-    // trigger 'loading=false' event here
-    store.dispatch('setLoading', false);
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-}, function (error) {
-
-    // trigger 'loading=false' event here
-    store.dispatch('setLoading', false);
-
-    if (store.getters.isUserLoggedIn && error.response.status == 401) {
-
-        router.push('/logout').catch(error => {})
-
-    }
-    return Promise.reject(error);
-});
 
 
 // When the page loads, that element gains focus
@@ -151,4 +107,52 @@ const app = new Vue({
         }
 
     },
+
+    created() {
+    // axios Interceptors
+    // The interceptor here ensures that we check for the token in local storage every time an ajax request is made
+    // So backend laravel api can find auth user by access token
+        axios.interceptors.request.use(
+            (config) => {
+
+                // trigger 'loading=true' event here
+                store.dispatch('setLoading', true);
+
+                if (store.getters.isUserLoggedIn) {
+                    let token = localStorage.getItem('access_token');
+                    if (token) {
+                        config.headers['Authorization'] = `Bearer ${token}`;
+                    }
+                }
+                return config;
+            },
+
+            (error) => {
+                // trigger 'loading=false' event here
+                store.dispatch('setLoading', false);
+                return Promise.reject(error);
+            }
+        );
+
+        // Add a response interceptor
+        axios.interceptors.response.use(function (response) {
+
+            // trigger 'loading=false' event here
+            store.dispatch('setLoading', false);
+            // Any status code that lie within the range of 2xx cause this function to trigger
+            // Do something with response data
+            return response;
+        }, function (error) {
+
+            // trigger 'loading=false' event here
+            store.dispatch('setLoading', false);
+
+            if (store.getters.isUserLoggedIn && error.response.status == 401) {
+
+                router.push('/logout').catch(error => {})
+
+            }
+            return Promise.reject(error);
+        });
+    }
 });
